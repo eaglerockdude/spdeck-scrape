@@ -49,6 +49,8 @@ end
 
 binding.pry
 
+# https://speakerdeck.com/lvrug/introduction-to-tdd-jason-arhart
+
 
 # code graveyard
 # pres_link << doc.css('h3.title').attr('href')
