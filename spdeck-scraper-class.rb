@@ -5,7 +5,8 @@ require 'pry'
 
 class SpeakerdeckScraper
 
-    attr_reader :url, :query, :page_object, :presentations, :start_time, :end_time
+    attr_reader :query, :page_object, :presentations, :url
+    attr_accessor :start_time, :end_time
     
     SD_QUERY_FIRST_PAGE = "https://speakerdeck.com/search?q=ruby"
     SD_DOMAIN = "https://speakerdeck.com"
@@ -29,7 +30,7 @@ class SpeakerdeckScraper
     # dumps the query results into a hash, presentations = { 'pres title' => 'pres_link.html' }
     # not called explicitly, lives in query scrape wrapper
     def single_results_page_scrape(i)
-        doc = Nokogiri::HTML(open "#{url}search?page=#{i}&q=#{query}")
+        doc = Nokogiri::HTML(open "#{self.url}search?page=#{i}&q=#{query}")
         doc.css('div.talk').each do |presentation|
             # ensures a unique key in the hash
             pres_id = presentation.attr('data-id')
@@ -76,19 +77,34 @@ class SpeakerdeckScraper
     end
 
     #presentations.to_a will be:
-    #[[id, title, link, author, views, author_link],[id2, title2, link2, author2, views2, author_link], ...]
+    #[id = {title, link, author, views, author_link}, id2 = {title2, link2, author2, views2, author_link}, ...]
+
+    #presentation  = {
+    # 'idijsdasdfljk' => {
+    #     :title => 'string',
+    #     :link => 'url string',
+    #     :author => 'name',
+    #     :views => integer,
+    #     :author_link => 'url string'
+    #     }
+    # }
 
 
     def html_gen
+        # take data and sort it by views descending
+        sorted_array = self.presentations.values.sort_by do |pres_hash|
+            pres_hash[:views]
+        end.reverse
+
         File.open("spd-#{query}.html", "w") do |file|
-           file.write( <<-HTML
+            file.write( <<-HTML
                 <html>
-                <header>
-                </header>
+                <head>
+                </head>
                 <body>
                 <h1>speakerdeck presentations - #{query}</h1>
-                <h3>this site was generated in #{end_time -start_time} seconds</h3>
-                    <table border="1">
+                <h4>this site was generated in #{self.end_time - self.start_time} seconds</h4>
+                    <table class="tablesorter" border="1">
                     <tr>
                         <th>TITLE</th>
                         <th>author</th>
@@ -96,16 +112,24 @@ class SpeakerdeckScraper
                     </tr>
             HTML
             )
-            self.presentations.each do |id, content_hash|
+            sorted_array.each do |content_hash|
+                link = "#{SD_DOMAIN}/#{content_hash[:link]}"
+                author_link = "#{SD_DOMAIN}/#{content_hash[:author_link]}"
                 file.write ( <<-HTML
                     <tr>
-                        <td><a href=#{SD_DOMAIN}/#{content_hash[:link]>#{content_hash[:title]}</a></td>
-                        <td><a href=#{SD_DOMAIN}/#{content_hash[:author_link]>#{content_hash[:author]}</a></td>
+                        <td><a href=#{link}>#{content_hash[:title]}</a></td>
+                        <td><a href=#{author_link}>#{content_hash[:author]}</a></td>
                         <td>#{content_hash[:views]}</td>
                     </tr>  
                     HTML
                 )
             end
+            file.write(<<-HTML
+                </table>
+                </body>
+                </html>
+                HTML
+                )
         end
     end
 
@@ -114,30 +138,35 @@ end
 
 
 scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(5)
+scraper.query_results_scrape(100)
 scraper.scrape_all
-#pp scraper.presentations
+File.open('spd-ruby-raw', 'w') do |file|
+    file.write(scraper.presentations)
+end
+
 
 scraper.html_gen
 
 scraper2 = SpeakerdeckScraper.new("https://speakerdeck.com/", "json")
-scraper2.query_results_scrape(5)
+scraper2.query_results_scrape(2)
 scraper2.scrape_all
+File.open('spd-json-raw', 'w') do |file|
+    file.write(scraper.presentations)
+end
 
 scraper2.html_gen
+
+system("open spd-ruby.html spd-json.html")
 
 # initialize a scraper with a website and a query
 
 
 # to do's: 
-    # implement a timer for the process
-    # develop HTML generator
     # dumper method?
     # I don't understand how I'm grabbing the first page of query results, but I am.... figure this out
     # how do I sort the data?
     # add a database?
-    # add links for authors and presentations
-    # put it up a website
+    # put it up on a website
     # implement a defense against a query that doesn't return enough results for the range
     # stats and comparisons of views for different queries (implement something that learns about common queries...? pretty advanced)
 
