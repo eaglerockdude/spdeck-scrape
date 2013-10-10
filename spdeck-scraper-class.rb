@@ -103,12 +103,12 @@ class SpeakerdeckScraper
                 </head>
                 <body>
                 <h1>speakerdeck presentations - #{query}</h1>
-                <h4>this site was generated in #{self.end_time - self.start_time} seconds</h4>
+                <h4>this site was generated in #{self.end_time - self.start_time} seconds | last queried at #{self.start_time}
                     <table class="tablesorter" border="1">
                     <tr>
-                        <th>TITLE</th>
+                        <th>title</th>
                         <th>author</th>
-                        <th>views!!!!</th>
+                        <th>views</th>
                     </tr>
             HTML
             )
@@ -164,9 +164,11 @@ system("open spd-ruby.html spd-json.html")
 # to do's: 
     # dumper method?
     # I don't understand how I'm grabbing the first page of query results, but I am.... figure this out
-    # how do I sort the data?
     # add a database?
     # put it up on a website
+    # grab dates
+    # interactive query?
+
     # implement a defense against a query that doesn't return enough results for the range
     # stats and comparisons of views for different queries (implement something that learns about common queries...? pretty advanced)
 
