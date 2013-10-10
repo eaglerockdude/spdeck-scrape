@@ -1,7 +1,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'pp'
-
+require 'pry'
 
 class SpeakerdeckScraper
 
@@ -39,16 +39,18 @@ class SpeakerdeckScraper
             author_name = presentation.parent.css('h3.title a').last.text
             good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
             puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
+            sleep(0.1) # 
             self.presentations[pres_id] = pres_link 
         end
     end
 
     # wrapper to run the single page scraper for all links
     def scrape_all
-        views_hash = presentations.collect do |id, link|
+        self.presentations.each do |id, link|
             pres_page_scrape(id, link)
         end
-        dump(views_hash)
+        dump(self.presentations)
+        binding.pry
     end
 
     # grab data from one page
@@ -62,7 +64,6 @@ class SpeakerdeckScraper
         title = pres_page.css('div#content header h1').text
         author = pres_page.css('div#content header h2 a').text
         author_link = pres_page.css('div#content header h2 a').attr('href').text
-        puts "#{id} has #{views} views!"
         presentations[id] = { 
             :title => title,
             :link => pres_link,
@@ -70,19 +71,13 @@ class SpeakerdeckScraper
             :views => views, 
             :author_link => author_link
             }
-        p presentations[id]
+        puts "#{presentations[id][:title]} has #{views} views!"
     end
 
-    def dump(hash)
+    def dump(pres_hash)
 
 
     end
-
-
-
-
-
-
 
 
 end
