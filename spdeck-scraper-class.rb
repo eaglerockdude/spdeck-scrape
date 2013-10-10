@@ -87,7 +87,7 @@ class SpeakerdeckScraper
                 </header>
                 <body>
                 <h1>speakerdeck presentations - #{query}</h1>
-                <h3>this site was generated in #{end_time -start_time}
+                <h3>this site was generated in #{end_time -start_time} seconds</h3>
                     <table border="1">
                     <tr>
                         <th>TITLE</th>
@@ -114,14 +114,14 @@ end
 
 
 scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(10)
+scraper.query_results_scrape(5)
 scraper.scrape_all
 #pp scraper.presentations
 
 scraper.html_gen
 
 scraper2 = SpeakerdeckScraper.new("https://speakerdeck.com/", "json")
-scraper2.query_results_scrape(10)
+scraper2.query_results_scrape(5)
 scraper2.scrape_all
 
 scraper2.html_gen
