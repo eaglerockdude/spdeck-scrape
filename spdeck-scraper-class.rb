@@ -103,7 +103,7 @@ class SpeakerdeckScraper
                 </head>
                 <body>
                 <h1>speakerdeck presentations - #{query}</h1>
-                <h4>this site was generated in #{self.end_time - self.start_time} seconds | last queried at #{self.start_time}
+                <h4>this site was generated in #{self.end_time - self.start_time} seconds (last queried at #{self.start_time})
                     <table class="tablesorter" border="1">
                     <tr>
                         <th>title</th>
@@ -113,8 +113,8 @@ class SpeakerdeckScraper
             HTML
             )
             sorted_array.each do |content_hash|
-                link = "#{SD_DOMAIN}/#{content_hash[:link]}"
-                author_link = "#{SD_DOMAIN}/#{content_hash[:author_link]}"
+                link = "#{SD_DOMAIN}#{content_hash[:link]}"
+                author_link = "#{SD_DOMAIN}#{content_hash[:author_link]}"
                 file.write ( <<-HTML
                     <tr>
                         <td><a href=#{link}>#{content_hash[:title]}</a></td>
@@ -138,7 +138,7 @@ end
 
 
 scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(100)
+scraper.query_results_scrape(3)
 scraper.scrape_all
 File.open('spd-ruby-raw', 'w') do |file|
     file.write(scraper.presentations)
