@@ -5,15 +5,17 @@ require 'pry'
 
 class SpeakerdeckScraper
 
-    attr_reader :url, :query, :page_object, :presentations
+    attr_reader :url, :query, :page_object, :presentations, :start_time, :end_time
     
     SD_QUERY_FIRST_PAGE = "https://speakerdeck.com/search?q=ruby"
+    SD_DOMAIN = "https://speakerdeck.com"
     
     def initialize(url, query = 'ruby')
         @url = url
         @query = query
         @page_object = ''
         @presentations = {}
+        @start_time = Time.now
     end
 
     def query_results_scrape(range)
@@ -39,7 +41,7 @@ class SpeakerdeckScraper
             author_name = presentation.parent.css('h3.title a').last.text
             good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
             puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
-            sleep(0.1) # 
+            sleep(0.05) # FHI: for human interface
             self.presentations[pres_id] = pres_link 
         end
     end
@@ -49,8 +51,7 @@ class SpeakerdeckScraper
         self.presentations.each do |id, link|
             pres_page_scrape(id, link)
         end
-        dump(self.presentations)
-        binding.pry
+        self.end_time = Time.now
     end
 
     # grab data from one page
@@ -74,19 +75,56 @@ class SpeakerdeckScraper
         puts "#{presentations[id][:title]} has #{views} views!"
     end
 
-    def dump(pres_hash)
+    #presentations.to_a will be:
+    #[[id, title, link, author, views, author_link],[id2, title2, link2, author2, views2, author_link], ...]
 
 
+    def html_gen
+        File.open("spd-#{query}.html", "w") do |file|
+           file.write( <<-HTML
+                <html>
+                <header>
+                </header>
+                <body>
+                <h1>speakerdeck presentations - #{query}</h1>
+                <h3>this site was generated in #{end_time -start_time}
+                    <table border="1">
+                    <tr>
+                        <th>TITLE</th>
+                        <th>author</th>
+                        <th>views!!!!</th>
+                    </tr>
+            HTML
+            )
+            self.presentations.each do |id, content_hash|
+                file.write ( <<-HTML
+                    <tr>
+                        <td><a href=#{SD_DOMAIN}/#{content_hash[:link]>#{content_hash[:title]}</a></td>
+                        <td><a href=#{SD_DOMAIN}/#{content_hash[:author_link]>#{content_hash[:author]}</a></td>
+                        <td>#{content_hash[:views]}</td>
+                    </tr>  
+                    HTML
+                )
+            end
+        end
     end
 
-
+# class end    
 end
 
 
 scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(2)
+scraper.query_results_scrape(10)
 scraper.scrape_all
 #pp scraper.presentations
+
+scraper.html_gen
+
+scraper2 = SpeakerdeckScraper.new("https://speakerdeck.com/", "json")
+scraper2.query_results_scrape(10)
+scraper2.scrape_all
+
+scraper2.html_gen
 
 # initialize a scraper with a website and a query
 
@@ -96,6 +134,13 @@ scraper.scrape_all
     # develop HTML generator
     # dumper method?
     # I don't understand how I'm grabbing the first page of query results, but I am.... figure this out
+    # how do I sort the data?
+    # add a database?
+    # add links for authors and presentations
+    # put it up a website
+    # implement a defense against a query that doesn't return enough results for the range
+    # stats and comparisons of views for different queries (implement something that learns about common queries...? pretty advanced)
+
 # is there a way to track bandwidth used in nokogiri calls?
 
 
