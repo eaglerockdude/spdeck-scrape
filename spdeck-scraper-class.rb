@@ -33,6 +33,8 @@ class SpeakerdeckScraper
             pres_id = presentation.attr('data-id')
             
             pres_link = presentation.css('h3.title a').attr('href').text
+            
+            # these two variables are unnececssary but provide a nice interface while the code is executing
             pres_title = presentation.css('h3.title').text.strip
             author_name = presentation.parent.css('h3.title a').last.text
             good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
@@ -58,13 +60,15 @@ class SpeakerdeckScraper
         pres_page = Nokogiri::HTML(open("https://speakerdeck.com#{pres_link}"))
         views = pres_page.css('li.views').text.scan(/\d+/).join.to_i
         title = pres_page.css('div#content header h1').text
+        author = pres_page.css('div#content header h2 a').text
+        author_link = pres_page.css('div#content header h2 a').attr('href').text
         puts "#{id} has #{views} views!"
         presentations[id] = { 
             :title => title,
             :link => pres_link,
-            #:author => #scrape code
-            :views => views 
-            #:author_link => #scrape code; think about implementing a separate authors hash
+            :author => author,
+            :views => views, 
+            :author_link => author_link
             }
         p presentations[id]
     end
@@ -85,7 +89,7 @@ end
 
 
 scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(5)
+scraper.query_results_scrape(2)
 scraper.scrape_all
 #pp scraper.presentations
 
