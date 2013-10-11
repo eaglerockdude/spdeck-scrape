@@ -33,7 +33,7 @@ for i in 2..5
         pres_title = presentation.text.strip
         author_name = presentation.parent.css('a').last.text
         # author_page_link = presentation.parent.css('a').last.attr('href')
-        # pres_date = presentation.parent.css('p').children.first.text.strip.split("by").join.strip # oh god please let there be a way to refactor
+        # pres_date = presentation.parent.css('p').children.first.text.strip.split("by").join.strip # please let there be a way to refactor
         # links[author_name] = [pres_link]
         good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet"]
         puts "grabbed a #{good_words[rand(0..10)]} presentation by #{author_name}"

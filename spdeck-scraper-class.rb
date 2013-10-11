@@ -162,12 +162,13 @@ system("open spd-ruby.html spd-json.html")
 
 
 # to do's: 
-    # dumper method?
+    # dump into database
     # I don't understand how I'm grabbing the first page of query results, but I am.... figure this out
     # add a database?
     # put it up on a website
     # grab dates
     # interactive query?
+    # size the title/author display based on log(views)
 
     # implement a defense against a query that doesn't return enough results for the range
     # stats and comparisons of views for different queries (implement something that learns about common queries...? pretty advanced)
