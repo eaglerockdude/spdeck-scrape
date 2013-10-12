@@ -2,3 +2,4 @@
 
 require 'spdeck-scrape'
 # puts Hola.hi(ARGV[0])
+# this is where a call to the CLI might go
