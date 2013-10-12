@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.description = "Generate data organized by viewcount for a database or webpages about presentations posted on SpeakerDeck (SpeakerDeck.com)"
   s.author      = "Joe O'Conor"
   s.email       = 'joe.oconor@gmail.com'
-  s.files       = ["lib/*"]
+  s.files       = `git ls-files`.split("\n")
   s.homepage    =
     'http://rubygems.org/gems/spdeck-scrape'
   s.license       = 'MIT'
