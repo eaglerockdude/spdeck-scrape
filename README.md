@@ -13,17 +13,33 @@ This gem is still a work in progress!
 ###Usage
 spdeck-scrape can be used from the command line and also in Ruby scripts. 
 
-Initialize a new `SpeakerdeckScraper` object specifying the desired query. It defaults to Ruby. 
+From the command line: 
+```bash
+$ spdeck-scrape [query | range | l or s display]
+```
+In a Ruby script:
+
+-   initialize a new `SpeakerdeckScraper` object specifying the desired query. It defaults to Ruby. 
 
 ```ruby
-spruby = SpeakerdeckScraper.new("rails")
+spd-ruby = SpeakerdeckScraper.new("rails")
 # grabs the titles, authors, views, and links
 ```
-
-You can call do the following to extract the data to HTML.
+-   set the number of query results pages to pull
 ```ruby
-spruby.html_gen
+spd-ruby.query_results_scrape(10)
+# pulls the first 10 pages
 ```
+-   initiate the scrape
+```ruby
+spd-ruby.scrape_all
+```
+-   extract the data to basic HTML
+```ruby
+spd-ruby.html_gen
+# will create a file called 'spd-ruby.html' in the working directory with a table of the results sorted by views descending
+```
+
 
 
 ###Classes
