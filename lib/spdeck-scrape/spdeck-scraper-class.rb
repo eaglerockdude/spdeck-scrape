@@ -56,25 +56,42 @@ class SpeakerdeckScraper
     end
 
     # grab data from one page
-    # returns
     # note: this is a time consuming process -- have to open each page (but necessary because the views data isn't stored on the query pages)
     def pres_page_scrape(id, pres_link)
-        # want to grab views, author, date
-        # worry about returning it into something later
         pres_page = Nokogiri::HTML(open("https://speakerdeck.com#{pres_link}"))
-        views = pres_page.css('li.views').text.scan(/\d+/).join.to_i
-        title = pres_page.css('div#content header h1').text
-        author = pres_page.css('div#content header h2 a').text
-        author_link = pres_page.css('div#content header h2 a').attr('href').text
+        
         presentations[id] = { 
-            :title => title,
+            :title => pres_title(pres_page),
             :link => pres_link,
-            :author => author,
-            :views => views, 
-            :author_link => author_link
+            :author => pres_author(pres_page),
+            :views => pres_views(pres_page), 
+            :author_link => pres_author_link(pres_page)
             }
-        puts "#{presentations[id][:title]} has #{views} views!"
+
+        puts "#{presentations[id][:title]} has #{presentations[id][:views]} views!"
     end
+
+    def pres_views(pres_page)
+        pres_page.css('li.views').text.scan(/\d+/).join.to_i
+    end
+
+    def pres_title(pres_page)
+        pres_page.css('div#content header h1').text
+
+    end
+
+    def pres_author(pres_page)
+        pres_page.css('div#content header h2 a').text
+    end
+
+    def pres_author_link(pres_page)
+        pres_page.css('div#content header h2 a').attr('href').text
+    end
+
+    def pres_date(pres_page)
+        pres_page.css('div#talk-details mark').strip
+    end
+
 
     #presentations.to_a will be:
     #[id = {title, link, author, views, author_link}, id2 = {title2, link2, author2, views2, author_link}, ...]
@@ -92,7 +109,7 @@ class SpeakerdeckScraper
 
     def html_gen
         # take data and sort it by views descending
-        sorted_array = self.presentations.values.sort_by do |pres_hash|
+        sorted_array = self.presentations.values.sort_by do |pres_hash| 
             pres_hash[:views]
         end.reverse
 
@@ -138,7 +155,7 @@ end
 
 
 scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(3)
+scraper.query_results_scrape(2)
 scraper.scrape_all
 File.open('spd-ruby-raw', 'w') do |file|
     file.write(scraper.presentations)
