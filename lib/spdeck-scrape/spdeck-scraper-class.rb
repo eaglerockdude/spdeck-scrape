@@ -63,9 +63,11 @@ class SpeakerdeckScraper
         presentations[id] = { 
             :title => pres_title(pres_page),
             :link => pres_link,
+            :date => pres_date(pres_page),
             :author => pres_author(pres_page),
-            :views => pres_views(pres_page), 
-            :author_link => pres_author_link(pres_page)
+            :author_link => pres_author_link(pres_page),
+            :category => pres_category(pres_page), 
+            :views => pres_views(pres_page)
             }
 
         puts "#{presentations[id][:title]} has #{presentations[id][:views]} views!"
@@ -89,8 +91,13 @@ class SpeakerdeckScraper
     end
 
     def pres_date(pres_page)
-        pres_page.css('div#talk-details mark').strip
+        pres_page.css('div#talk-details mark').first.text.strip
     end
+
+    def pres_category(pres_page)
+        pres_page.css('div#talk-details mark a').text
+    end
+
 
 
     #presentations.to_a will be:
@@ -124,6 +131,8 @@ class SpeakerdeckScraper
                     <table class="tablesorter" border="1">
                     <tr>
                         <th>title</th>
+                        <th>date</th>
+                        <th>category</th>
                         <th>author</th>
                         <th>views</th>
                     </tr>
@@ -135,6 +144,8 @@ class SpeakerdeckScraper
                 file.write ( <<-HTML
                     <tr>
                         <td><a href=#{link}>#{content_hash[:title]}</a></td>
+                        <td>#{content_hash[:date]}</td>
+                        <td><a href="https://speakerdeck.com/c/#{content_hash[:category].downcase}">#{content_hash[:category]}</a></td>
                         <td><a href=#{author_link}>#{content_hash[:author]}</a></td>
                         <td>#{content_hash[:views]}</td>
                     </tr>  
