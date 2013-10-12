@@ -11,8 +11,10 @@ Gem::Specification.new do |s|
   s.homepage    =
     'http://rubygems.org/gems/spdeck-scrape'
   s.license       = 'MIT'
+  s.require_path = 'lib'
   s.add_runtime_dependency 'nokogiri' >= '1.6.0'
   s.post_install_message = <<-JNO
+  "INSTALLED!"
 
 
   JNO
