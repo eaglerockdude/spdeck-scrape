@@ -1,15 +1,19 @@
 #!/usr/bin/env ruby
 
 require 'spdeck-scrape'
-require 'pry'
 
 # usage: $ spdeck-scrape my_query my_range [verbose | concise] -html[optional for html gen]
 if ARGV.empty?
     puts "\n\n------- spdeck-scrape: ERROR! --------"
-    puts "      Please specify a query, range, and display option:"
-    puts "      'spdeck-scrape my_query an_integer [-v for verbose | -c for concise]'"
-    puts "      ex:"
-    puts "      'spdeck-scrape ruby 15 -v'\n\n"
+    puts "      Usage:"
+    puts "      Please specify a query, range, and display option (if desired):\n"
+    puts "          spdeck-scrape my_query an_integer [options]"
+    puts "      Options:
+                    -v       # verbose display while running"
+    puts "          -c       # concise display"
+    puts "          -html    # include this tag to print data to an HTML file (must also include a display option)\n"
+    puts "      Example:"
+    puts "          spdeck-scrape ruby 15 -v -html\n\n"
 else
     query = ARGV[0]
     range = ARGV[1].to_i || 5
@@ -19,7 +23,7 @@ else
 
     user.query_results_scrape(range)
     user.scrape_all
-    if ARGV.include?("-html")
+    if ARGV[3] == ("-html")
         user.html_gen
         system("open spd-#{query}.html")
         puts
