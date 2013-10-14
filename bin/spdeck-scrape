@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'spdeck-scrape'
-# puts Hola.hi(ARGV[0])
-# this is where a call to the CLI might go
+
+# usage: $ spdeck-scrape my_query [verbose | concise] html[optional for html gen]
+
+user = SpeakerdeckScraper.new(ARGV[0], ARGV[1])
+user.scrape_all
+user.html_gen if ARGV[2] == "html"

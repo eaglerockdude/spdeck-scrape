@@ -9,8 +9,8 @@ class SpeakerdeckScraper
     SD_QUERY_FIRST_PAGE = "https://speakerdeck.com/search?q=ruby"
     SD_DOMAIN = "https://speakerdeck.com"
     
-    def initialize(url, query = 'ruby', opts = {:display => 'v'})
-        @url = url
+    def initialize(query = 'ruby', opts)
+        @url = "https://speakerdeck.com/"
         @query = query
         @page_object = ''
         @presentations = {}
@@ -39,8 +39,8 @@ class SpeakerdeckScraper
 
             pres_title = presentation.css('h3.title').text.strip
             author_name = presentation.parent.css('h3.title a').last.text
-            verbose_display(pres_title, author_name) if self.opts[:display] == "v"
-            concise_display if self.opts[:display] == "c"
+            verbose_display(pres_title, author_name) if self.opts == "v"
+            concise_display if opts == "c"
 
             self.presentations[pres_id] = pres_link 
         end
