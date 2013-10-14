@@ -14,6 +14,15 @@ This gem is still a work in progress!
 spdeck-scrape can be used from the command line and also in Ruby scripts. 
 
 From the command line: 
+  Usage:
+  Please specify a query, range, and display option (if desired):\n
+      spdeck-scrape my_query an_integer [options]
+  Options:
+                    -v       # verbose display while running
+      -c       # concise display
+      -html    # include this tag to print data to an HTML file (must also include a display option)
+  Example:
+      spdeck-scrape ruby 15 -v -html\n\n
 ```bash
 $ spdeck-scrape [query | range | l or s display]
 ```

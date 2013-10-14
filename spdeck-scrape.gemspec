@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.name        = 'spdeck-scrape'
   s.executables << 'spdeck-scrape'
-  s.version     = '0.0.6'
+  s.version     = '0.0.61'
   s.date        = '2013-10-11'
   s.summary     = "Simple scraper for SpeakerDeck"
   s.description = "Generate data organized by viewcount for a database or webpages about presentations posted on SpeakerDeck (SpeakerDeck.com)"
