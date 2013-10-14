@@ -1,30 +1,36 @@
 require 'nokogiri'
 require 'open-uri'
-require 'pp'
 require 'pry'
 
 class SpeakerdeckScraper
 
-    attr_reader :query, :page_object, :presentations, :url
-    attr_accessor :start_time, :end_time
+    attr_reader :page_object, :presentations, :url
+    attr_accessor :start_time, :end_time, :opts, :query, :display
     
     SD_QUERY_FIRST_PAGE = "https://speakerdeck.com/search?q=ruby"
     SD_DOMAIN = "https://speakerdeck.com"
     
-    def initialize(url, query = 'ruby')
-        @url = url
+    def initialize(query, range = 5, display = '-v')
+        @url = "https://speakerdeck.com/"
         @query = query
         @page_object = ''
         @presentations = {}
         @start_time = Time.now
+        @range = range
+        @display = display
     end
 
     def query_results_scrape(range)
+        puts "grabbing presentations"
+        begin
         single_results_page_scrape(SD_QUERY_FIRST_PAGE)
         (2..range).collect do |i|
             single_results_page_scrape(i)
         end
-        puts "cool! we got #{presentations.length} presentations"
+        rescue
+            puts "error! prob nothing to worry about"
+        end
+        puts "\ncool! we got #{presentations.length} presentations"
     end
 
     # dumps the query results into a hash, presentations = { 'pres title' => 'pres_link.html' }
@@ -36,19 +42,32 @@ class SpeakerdeckScraper
             pres_id = presentation.attr('data-id')
             
             pres_link = presentation.css('h3.title a').attr('href').text
-            
-            # these two variables are unnececssary but provide a nice interface while the code is executing
+
             pres_title = presentation.css('h3.title').text.strip
             author_name = presentation.parent.css('h3.title a').last.text
-            good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
-            puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
-            sleep(0.05) # FHI: for human interface
+            verbose_display(pres_title, author_name) if self.display == "-v"
+            concise_display if self.display == "-c"
+
             self.presentations[pres_id] = pres_link 
         end
     end
 
+    #### display options ############
+    def verbose_display(pres_title, author_name)
+        good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying", "inspirational", "inspiring", "mind-exploding", "hot"]
+        puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
+        sleep(0.02)
+    end
+
+    def concise_display
+        print "#"
+        sleep(0.02)
+    end
+    #### display options end ##########
+
     # wrapper to run the single page scraper for all links
     def scrape_all
+        puts "reading presentation data"
         self.presentations.each do |id, link|
             pres_page_scrape(id, link)
         end
@@ -70,7 +89,11 @@ class SpeakerdeckScraper
             :views => pres_views(pres_page)
             }
 
+        if self.display == '-c'
+            concise_display
+        else
         puts "#{presentations[id][:title]} has #{presentations[id][:views]} views!"
+        end
     end
 
     def pres_views(pres_page)
@@ -97,22 +120,6 @@ class SpeakerdeckScraper
     def pres_category(pres_page)
         pres_page.css('div#talk-details mark a').text
     end
-
-
-
-    #presentations.to_a will be:
-    #[id = {title, link, author, views, author_link}, id2 = {title2, link2, author2, views2, author_link}, ...]
-
-    #presentation  = {
-    # 'idijsdasdfljk' => {
-    #     :title => 'string',
-    #     :link => 'url string',
-    #     :author => 'name',
-    #     :views => integer,
-    #     :author_link => 'url string'
-    #     }
-    # }
-
 
     def html_gen
         # take data and sort it by views descending
@@ -164,18 +171,4 @@ class SpeakerdeckScraper
 # class end    
 end
 
-
-scraper = SpeakerdeckScraper.new("https://speakerdeck.com/", "ruby")
-scraper.query_results_scrape(2)
-scraper.scrape_all
-scraper.html_gen
-
-scraper2 = SpeakerdeckScraper.new("https://speakerdeck.com/", "json")
-scraper2.query_results_scrape(2)
-scraper2.scrape_all
-scraper2.html_gen
-
-system("open spd-ruby.html spd-json.html")
-
-# initialize a scraper with a website and a query
 
