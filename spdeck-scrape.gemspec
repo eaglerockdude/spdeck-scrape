@@ -15,6 +15,6 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.add_runtime_dependency 'nokogiri' >= '1.6.0'
   s.post_install_message = <<-JNO
-  INSTALLED!
+  You have installed spdeck-scrape! See the README at https://github.com/jnoconor/spdeck-scrape for more information.
   JNO
 end

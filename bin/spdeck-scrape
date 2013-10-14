@@ -16,7 +16,7 @@ if ARGV.empty?
     puts "          spdeck-scrape ruby 15 -v -html\n\n"
 else
     query = ARGV[0]
-    range = ARGV[1].to_i || 5
+    ARGV[1].nil? ? range = 5 : range = ARGV[1].to_i
     display = ARGV[2] || '-c'
 
     user = SpeakerdeckScraper.new(query, range, display)
