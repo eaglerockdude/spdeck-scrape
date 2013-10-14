@@ -14,21 +14,21 @@ This gem is still a work in progress!
 spdeck-scrape can be used from the command line and also in Ruby scripts. 
 
 From the command line: 
-  Usage:
-  Please specify a query, range, and display option (if desired):\n
+
+-   Please specify a query, range, and display option (if desired):
       spdeck-scrape my_query an_integer [options]
-  Options:
-                    -v       # verbose display while running
+
+-   Options:
+      -v       # verbose display while running
       -c       # concise display
       -html    # include this tag to print data to an HTML file (must also include a display option)
-  Example:
+ 
+-   Example:
       spdeck-scrape ruby 15 -v -html\n\n
-```bash
-$ spdeck-scrape [query | range | l or s display]
-```
+
 In a Ruby script:
 
--   initialize a new `SpeakerdeckScraper` object specifying the desired query. It defaults to Ruby. 
+-   initialize a new `SpeakerdeckScraper` object specifying the desired query. 
 
 ```ruby
 spd-ruby = SpeakerdeckScraper.new("rails")
@@ -49,14 +49,10 @@ spd-ruby.html_gen
 # will create a file called 'spd-ruby.html' in the working directory with a table of the results sorted by views descending
 ```
 
-
-
 ###Classes
 
 SpeakerdeckScraper
-Presentations
-SPDatabase
-SPHTMLGen
+
 
 ###Methods
 
