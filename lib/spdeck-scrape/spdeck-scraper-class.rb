@@ -1,28 +1,34 @@
 require 'nokogiri'
 require 'open-uri'
+require 'pry'
 
 class SpeakerdeckScraper
 
-    attr_reader :query, :page_object, :presentations, :url
-    attr_accessor :start_time, :end_time, :opts
+    attr_reader :page_object, :presentations, :url
+    attr_accessor :start_time, :end_time, :opts, :query, :display
     
     SD_QUERY_FIRST_PAGE = "https://speakerdeck.com/search?q=ruby"
     SD_DOMAIN = "https://speakerdeck.com"
     
-    def initialize(query = 'ruby', opts)
+    def initialize(query, range = 5, display = '-v')
         @url = "https://speakerdeck.com/"
         @query = query
         @page_object = ''
         @presentations = {}
         @start_time = Time.now
-        @opts = opts
+        @range = range
+        @display = display
     end
 
     def query_results_scrape(range)
         puts "grabbing presentations"
+        begin
         single_results_page_scrape(SD_QUERY_FIRST_PAGE)
         (2..range).collect do |i|
             single_results_page_scrape(i)
+        end
+        rescue
+            puts "error! prob nothing to worry about"
         end
         puts "\ncool! we got #{presentations.length} presentations"
     end
@@ -39,16 +45,16 @@ class SpeakerdeckScraper
 
             pres_title = presentation.css('h3.title').text.strip
             author_name = presentation.parent.css('h3.title a').last.text
-            verbose_display(pres_title, author_name) if self.opts == "v"
-            concise_display if opts == "c"
+            verbose_display(pres_title, author_name) if self.display == "-v"
+            concise_display if self.display == "-c"
 
             self.presentations[pres_id] = pres_link 
         end
     end
 
-    # display options ############
+    #### display options ############
     def verbose_display(pres_title, author_name)
-        good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
+        good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying", "inspirational", "inspiring", "mind-exploding", "hot"]
         puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
         sleep(0.02)
     end
@@ -57,10 +63,11 @@ class SpeakerdeckScraper
         print "#"
         sleep(0.02)
     end
-    ##############################
+    #### display options end ##########
 
     # wrapper to run the single page scraper for all links
     def scrape_all
+        puts "reading presentation data"
         self.presentations.each do |id, link|
             pres_page_scrape(id, link)
         end
@@ -68,7 +75,6 @@ class SpeakerdeckScraper
     end
 
     # grab data from one page
-    # returns
     # note: this is a time consuming process -- have to open each page (but necessary because the views data isn't stored on the query pages)
     def pres_page_scrape(id, pres_link)
         # want to grab views, author, date
@@ -85,22 +91,12 @@ class SpeakerdeckScraper
             :views => views, 
             :author_link => author_link
             }
-        puts "#{presentations[id][:title]} has #{views} views!"
+        if self.display == '-c'
+            concise_display
+        else
+            puts "#{presentations[id][:title]} has #{views} views!"
+        end
     end
-
-    #presentations.to_a will be:
-    #[id = {title, link, author, views, author_link}, id2 = {title2, link2, author2, views2, author_link}, ...]
-
-    #presentation  = {
-    # 'idijsdasdfljk' => {
-    #     :title => 'string',
-    #     :link => 'url string',
-    #     :author => 'name',
-    #     :views => integer,
-    #     :author_link => 'url string'
-    #     }
-    # }
-
 
     def html_gen
         # take data and sort it by views descending
