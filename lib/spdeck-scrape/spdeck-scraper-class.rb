@@ -1,30 +1,30 @@
 require 'nokogiri'
 require 'open-uri'
-require 'pp'
-require 'pry'
 
 class SpeakerdeckScraper
 
     attr_reader :query, :page_object, :presentations, :url
-    attr_accessor :start_time, :end_time
+    attr_accessor :start_time, :end_time, :opts
     
     SD_QUERY_FIRST_PAGE = "https://speakerdeck.com/search?q=ruby"
     SD_DOMAIN = "https://speakerdeck.com"
     
-    def initialize(url, query = 'ruby')
+    def initialize(url, query = 'ruby', opts = {:display => 'v'})
         @url = url
         @query = query
         @page_object = ''
         @presentations = {}
         @start_time = Time.now
+        @opts = opts
     end
 
     def query_results_scrape(range)
+        puts "grabbing presentations"
         single_results_page_scrape(SD_QUERY_FIRST_PAGE)
         (2..range).collect do |i|
             single_results_page_scrape(i)
         end
-        puts "cool! we got #{presentations.length} presentations"
+        puts "\ncool! we got #{presentations.length} presentations"
     end
 
     # dumps the query results into a hash, presentations = { 'pres title' => 'pres_link.html' }
@@ -36,16 +36,28 @@ class SpeakerdeckScraper
             pres_id = presentation.attr('data-id')
             
             pres_link = presentation.css('h3.title a').attr('href').text
-            
-            # these two variables are unnececssary but provide a nice interface while the code is executing
+
             pres_title = presentation.css('h3.title').text.strip
             author_name = presentation.parent.css('h3.title a').last.text
-            good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
-            puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
-            sleep(0.05) # FHI: for human interface
+            verbose_display(pres_title, author_name) if self.opts[:display] == "v"
+            concise_display if self.opts[:display] == "c"
+
             self.presentations[pres_id] = pres_link 
         end
     end
+
+    # display options ############
+    def verbose_display(pres_title, author_name)
+        good_words = ["awesome", "great", "amazing", "really cool", "tops", "mind-blowing", "super", "glittering", "thought-provoking", "glorious", "sweet", "classy","really great", "fun", "strong", "robust", "healthy", "fine", "superior", "quality", "thoughful", "intelligent", "clever", "genius","incredible", "smart", "beautiful", "handsome", "pulchritudinous", "elegant", "bespoke", "crazy", "satisfying"]
+        puts "grabbed a #{good_words[rand(good_words.length)]} presentation #{pres_title} by #{author_name}"
+        sleep(0.02)
+    end
+
+    def concise_display
+        print "#"
+        sleep(0.02)
+    end
+    ##############################
 
     # wrapper to run the single page scraper for all links
     def scrape_all

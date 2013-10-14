@@ -1,4 +1,5 @@
 require_relative './spdeck-scrape/spdeck-scraper-class.rb'
+# require 'spdeck-scrape'
 
 # this file is loaded and run when 'spdeck-scrape' is required in a script
 
